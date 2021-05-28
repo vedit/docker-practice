@@ -1,0 +1,29 @@
+version: "3.3"
+    
+services:
+  db:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: dontusethispassword
+      MYSQL_DATABASE: bounswe
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: dontusethispasswordtoo
+    
+  app:
+    depends_on:
+      - db
+    image: vedit/docker-practice:0.1
+    ports:
+      - "8080:5000"
+    environment:
+      DB_HOST: db:3306
+      DB_USER: dev
+      DB_PASSWORD: dontusethispasswordtoo
+      DB_NAME: bounswe
+      FLASK_ENV: development
+    volumes:
+      - .:/app
+volumes:
+  db_data: {}
