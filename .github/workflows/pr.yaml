@@ -19,4 +19,7 @@ jobs:
         with:
           python-version: '3.9.5'
       -
-        run: cd python-mysql-sample;python test.py
+        run: |
+          cd python-mysql-sample
+          pip install -r requirements.txt
+          python test.py
