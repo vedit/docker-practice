@@ -11,7 +11,7 @@ def hello_world():
   storage.populate()
   raw_score = storage.score()
   score = calculate_score(raw_score)
-  return "Hello Beijing 123, %d!" % score
+  return "Hello BounSWE 123, %d!" % score
 
 def calculate_score(raw_score):
   score = raw_score % 10
