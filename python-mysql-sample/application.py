@@ -17,6 +17,10 @@ def calculate_score(raw_score):
   score = raw_score % 10
   return score
 
+def calculate_score_2(raw_score):
+  score = raw_score % 15
+  return score
+
 class Storage():
   def __init__(self):
     self.db = MySQLdb.connect(
