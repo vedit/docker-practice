@@ -16,12 +16,13 @@ services:
       - db
     build: .
     ports:
-      - "8080:5000"
+      - "8080:3000"
     environment:
-      DB_HOST: db:3306
-      DB_USER: dev
-      DB_PASSWORD: dontusethispasswordtoo
-      DB_NAME: bounswe
+      MYSQL_USERNAME: dev
+      MYSQL_PASSWORD: dontusethispasswordtoo
+      MYSQL_INSTANCE_NAME: bounswe
+      MYSQL_PORT_3306_TCP_ADDR: db
+      MYSQL_PORT_3306_TCP_PORT: 3306
       FLASK_ENV: development
     volumes:
       - .:/app

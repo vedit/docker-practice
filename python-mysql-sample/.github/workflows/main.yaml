@@ -1,0 +1,80 @@
+name: Deploy to Test
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Checkout
+        uses: actions/checkout@v2
+      - 
+        name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9.5'
+      -
+        run: cd python-mysql-sample;python test.py
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: python-mysql-sample
+          push: true
+          tags: vedit/python-mysql-sample:${{ github.sha }}
+
+  provision-and-deploy:
+    runs-on: ubuntu-latest
+    needs: [build-and-push]
+    steps:
+      - 
+        name: Checkout
+        uses: actions/checkout@v2
+      - 
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9.5' 
+      - 
+        name: Install Pulumi CLI
+        uses: pulumi/action-install-pulumi-cli@v1
+        with:
+          pulumi-version: 3.3.1
+      - run: cd infra/pulumi;pip install -r requirements.txt
+      - uses: pulumi/actions@v3
+        id: provisioner
+        with:
+          command: up
+          stack-name: alpha
+          work-dir: infra/pulumi
+        env:
+          PULUMI_ROOT: infra/pulumi
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          DOCKER_REPOSITORY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-central-1.amazonaws.com/tmu/platform
+          DOCKER_TAG: ${{ github.sha }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          POSTGRES_DB_PASSWORD: ${{ secrets.POSTGRES_DB_PASSWORD }}
+          AWS_S3_ACCESS_KEY_ID: ${{ secrets.AWS_S3_ACCESS_KEY_ID }}
+          AWS_S3_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_SECRET_ACCESS_KEY }}
+          HYPERLEDGER_PASSWORD: ${{ secrets.HYPERLEDGER_PASSWORD_ALPHA }}
+          STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
+          STRIPE_ENDPOINT_SECRET: ${{ secrets.STRIPE_ENDPOINT_SECRET }}
+          POSTMARK_SERVER_TOKEN: ${{ secrets.POSTMARK_SERVER_TOKEN }}
+          SXC_CLIENT_ID: ${{ secrets.SXC_CLIENT_ID }}
