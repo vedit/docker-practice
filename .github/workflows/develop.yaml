@@ -48,7 +48,7 @@ jobs:
           command: |
             docker kill app || true
             docker rm app || true
-            docker start -d --name app -E MYSQL_USERNAME=dev -E MYSQL_PASSWORD=dontusethispasswordtoo -E MYSQL_INSTANCE_NAME=bounswe -E MYSQL_PORT_3306_TCP_ADDR="172.31.6.113" -E MYSQL_PORT_3306_TCP_PORT="3306" -p 8080:3000 vedit/python-mysql-sample:${{ github.sha }}
+            docker run -d --name app -E MYSQL_USERNAME=dev -E MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} -E MYSQL_INSTANCE_NAME=bounswe -E MYSQL_PORT_3306_TCP_ADDR="172.31.6.113" -E MYSQL_PORT_3306_TCP_PORT="3306" -p 8080:3000 vedit/python-mysql-sample:${{ github.sha }}
           host: ${{ secrets.HOST }}
           user: ubuntu
           key: ${{ secrets.PRIVATE_KEY}}
